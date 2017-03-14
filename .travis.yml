@@ -1,0 +1,33 @@
+sudo: required
+services:
+  - docker
+language: bash
+addons:
+  apt:
+    sources:
+      - debian-sid
+    packages:
+      - shellcheck
+env:
+  matrix:
+    - CROSSARCH_COMMON=1
+    - BUILD=caddy
+    - BUILD=home-assistant
+    - BUILD=mosquitto
+install:
+  - set -eo pipefail
+  - chmod +x ./docker_crossarch_common.sh
+  - chmod +x ./**/get_version.sh
+script:
+  - set -eo pipefail
+  - |
+    if [[ -z "${CROSSARCH_COMMON+x}" ]]; then
+      shellcheck ./docker_crossarch_common.sh
+    else
+      source ./docker_crossarch_common.sh
+      crossarch_common_build "./${BUILD}/Dockerfile"
+      source "./${BUILD}/get_version.sh"
+      local build_version
+      build_version=$(crossarch_build_get_version)
+      crossarch_common_deploy "${DOCKER_USERNAME}" "${DOCKER_PASSWORD}" "${BUILD}" "${build_version}"
+    fi
