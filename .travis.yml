@@ -22,12 +22,12 @@ script:
   - set -eo pipefail
   - |
     if [[ -z "${CROSSARCH_COMMON+x}" ]]; then
-      shellcheck ./docker_crossarch_common.sh
-    else
       source ./docker_crossarch_common.sh
       crossarch_common_build "./${BUILD}/Dockerfile"
       source "./${BUILD}/get_version.sh"
       local build_version
       build_version=$(crossarch_build_get_version)
       crossarch_common_deploy "${DOCKER_USERNAME}" "${DOCKER_PASSWORD}" "${BUILD}" "${build_version}"
+    else
+      shellcheck ./docker_crossarch_common.sh
     fi

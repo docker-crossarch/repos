@@ -102,7 +102,7 @@ crossarch_common_deploy () {
     
   __crossarch_common_parse_semver "${build_version}" build_version_major build_version_minor build_version_patch build_version_special
   
-  __info "Build version major: ${build_version_major}, minor: ${build_version_minor}, patch: ${build_version_patch}"
+  __info "${build_name} build version major: ${build_version_major}, minor: ${build_version_minor}, patch: ${build_version_patch}"
   
   __info "Pushing images to Docker Hub..."
   docker login -u "${docker_username}" -p "${docker_password}"
