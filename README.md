@@ -1,5 +1,7 @@
 # Common script for Docker Crossarch builds
 
+[![Build Status](https://travis-ci.org/docker-crossarch/repos.svg?branch=master)](https://travis-ci.org/docker-crossarch/repos)
+
 This repository contains the common code used in all Crossarch builds.
 
 ## Supported architectures
