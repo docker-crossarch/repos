@@ -25,7 +25,7 @@ script:
   - |
     if [[ -z "${CROSSARCH_COMMON+x}" ]]; then
       source ./docker_crossarch_common.sh
-      travis_wait 50 crossarch_common_build "./${BUILD}/Dockerfile"
+      crossarch_common_build "./${BUILD}/Dockerfile"
       source "./${BUILD}/get_version.sh"
       local build_version
       build_version=$(crossarch_build_get_version)
