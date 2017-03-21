@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
-__crossarch_common_version="1.0.0"
+__crossarch_common_version="1.1.0"
 
 __crossarch_archs=(${CROSSARCH_ARCHS:="amd64 armhf"})
-__crossarch_multiarch_alpine_branch="${CROSSARCH_MULTIARCH_ALPINE_BRANCH:="edge"}"
+__crossarch_alpine_branch=${CROSSARCH_ALPINE_BRANCH:="edge"}
+__crossarch_use_multiarch_alpine=${CROSSARCH_USE_MULTIARCH_ALPINE:="false"}
+
+__crossarch_build_is_semver=${CROSSARCH_BUILD_IS_SEMVER:="true"}
 
 __die () {
   printf '  ❌ \033[1;31mERROR: %s\033[0m\n' "$@" >&2  # bold red
-  # exit 1
+  exit 1
 }
 
 __info () {
@@ -55,7 +58,7 @@ crossarch_common_build () {
   
   __crossarch_welcome
   
-  __info "Building Crossarch images for ${__crossarch_archs[*]} (on top of Alpine ${__crossarch_multiarch_alpine_branch})"
+  __info "Building Crossarch images for ${__crossarch_archs[*]} (on top of Alpine ${__crossarch_alpine_branch})"
   
   __info "Registering QEMU..."
   docker run --rm --privileged multiarch/qemu-user-static:register --reset
@@ -66,16 +69,25 @@ crossarch_common_build () {
 
     cp "${dockerfile}" "${tmp_dir}/Dockerfile"
     
-    local multiarch_alpine_arch
-    if [ "${arch}" = "amd64" ]; then
-      multiarch_alpine_arch="x86_64"
-    elif [ "${arch}" = "armhf" ]; then
-      multiarch_alpine_arch="armhf"
+    local image_to_use
+    image_to_use="crossarch/alpine:${arch}-${__crossarch_alpine_branch}"
+    
+    if [ "${__crossarch_use_multiarch_alpine}" = "true" ]; then
+      image_to_use="multiarch/alpine"
+
+      local multiarch_alpine_arch
+      if [ "${arch}" = "amd64" ]; then
+        multiarch_alpine_arch="x86_64"
+      elif [ "${arch}" = "armhf" ]; then
+        multiarch_alpine_arch="armhf"
+      fi
+      
+      image_to_use="${image_to_use}:${multiarch_alpine_arch}-${__crossarch_alpine_branch}"
     fi
       
     local prepend
     prepend=$(cat <<EOF
-FROM multiarch/alpine:${multiarch_alpine_arch}-${__crossarch_multiarch_alpine_branch}
+FROM ${image_to_use}
 ENV CROSSARCH_ARCH=${arch}
 RUN echo "Building image for \${CROSSARCH_ARCH}"
 EOF
@@ -99,21 +111,33 @@ crossarch_common_deploy () {
   local build_version_patch=0
   # shellcheck disable=SC2034
   local build_version_special=""
-    
-  __crossarch_common_parse_semver "${build_version}" build_version_major build_version_minor build_version_patch build_version_special
   
-  __info "${build_name} build version major: ${build_version_major}, minor: ${build_version_minor}, patch: ${build_version_patch}"
+  __info "Deploying ${build_name} (${build_version})..."
+    
+  if [ "${__crossarch_build_is_semver}" = "true" ]; then
+    __crossarch_common_parse_semver "${build_version}" build_version_major build_version_minor build_version_patch build_version_special
+    
+    __info "Version major: ${build_version_major}, minor: ${build_version_minor}, patch: ${build_version_patch}"
+  fi
+
   
   __info "Pushing images to Docker Hub..."
   docker login -u "${docker_username}" -p "${docker_password}"
   for arch in "${__crossarch_archs[@]}"; do
-    docker tag "build:${arch}" "crossarch/${build_name}:${arch}-${build_version_major}"
-    docker tag "build:${arch}" "crossarch/${build_name}:${arch}-${build_version_major}.${build_version_minor}"
-    docker tag "build:${arch}" "crossarch/${build_name}:${arch}-${build_version_major}.${build_version_minor}.${build_version_patch}"
-    docker tag "build:${arch}" "crossarch/${build_name}:${arch}-latest"
-    docker push "crossarch/${build_name}:${arch}-${build_version_major}"
-    docker push "crossarch/${build_name}:${arch}-${build_version_major}.${build_version_minor}"
-    docker push "crossarch/${build_name}:${arch}-${build_version_major}.${build_version_minor}.${build_version_patch}"
-    docker push "crossarch/${build_name}:${arch}-latest"
+    if [ "${__crossarch_build_is_semver}" = "true" ]; then
+      docker tag "build:${arch}" "crossarch/${build_name}:${arch}-${build_version_major}"
+      docker tag "build:${arch}" "crossarch/${build_name}:${arch}-${build_version_major}.${build_version_minor}"
+      docker tag "build:${arch}" "crossarch/${build_name}:${arch}-${build_version_major}.${build_version_minor}.${build_version_patch}"
+      docker tag "build:${arch}" "crossarch/${build_name}:${arch}-latest"
+      docker push "crossarch/${build_name}:${arch}-${build_version_major}"
+      docker push "crossarch/${build_name}:${arch}-${build_version_major}.${build_version_minor}"
+      docker push "crossarch/${build_name}:${arch}-${build_version_major}.${build_version_minor}.${build_version_patch}"
+      docker push "crossarch/${build_name}:${arch}-latest"
+    else
+      docker tag "build:${arch}" "crossarch/${build_name}:${arch}-${build_version}"
+      docker tag "build:${arch}" "crossarch/${build_name}:${arch}-latest"
+      docker push "crossarch/${build_name}:${arch}-${build_version}"
+      docker push "crossarch/${build_name}:${arch}-latest"
+    fi
   done
 }

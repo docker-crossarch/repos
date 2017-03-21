@@ -11,7 +11,7 @@ addons:
 env:
   matrix:
     - CROSSARCH_COMMON=1
-    - BUILD=alpine
+    - BUILD=alpine CROSSARCH_USE_MULTIARCH_ALPINE=true CROSSARCH_BUILD_IS_SEMVER=false
     - BUILD=caddy
     - BUILD=home-assistant
     - BUILD=mosquitto
