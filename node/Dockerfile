@@ -3,7 +3,7 @@ RUN apk add --no-cache nodejs-current \
   && mkdir /opt \
   && curl --silent --location https://yarnpkg.com/latest.tar.gz | tar --extract --gzip --directory /opt \
   && mv /opt/dist /opt/yarn \
-  && ln --symbolic /opt/yarn/bin/yarn /usr/local/bin \
+  && ln -s /opt/yarn/bin/yarn /usr/local/bin \
   && apk del --purge devs
 
 ENTRYPOINT ["node"]

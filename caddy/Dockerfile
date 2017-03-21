@@ -3,7 +3,7 @@ RUN apk --no-cache add --virtual devs tar curl \
   elif [ "${CROSSARCH_ARCH}" = "amd64" ]; then caddy_arch="amd64"; fi \
   && curl --silent --location "https://caddyserver.com/download/build?os=linux&arch=${caddy_arch}&features=" | tar --extract --gzip --directory /usr/bin caddy \
   && apk del --purge devs \
-  && mkdir --parents /caddy/config /caddy/tls
+  && mkdir -p /caddy/config /caddy/tls
 
 WORKDIR /caddy
 
