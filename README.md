@@ -1,35 +1,44 @@
-# Common script for Docker Crossarch builds
+# Docker Crossarch builds
 
 [![Build Status](https://travis-ci.org/docker-crossarch/repos.svg?branch=master)](https://travis-ci.org/docker-crossarch/repos)
 
-This repository contains the common code used in all Crossarch builds.
+This repository contains the code required to build cross-architecture Docker images on a daily basis.
+Images are built automatically on Travis CI.
+
+## What does it do?
+
+The build script emulates, using QEMU, all supported environments and triggers a Docker build of all Dockerfile. If the software follow semver, the following tags are pushed:
+
+* `<arch>-<major>`
+* `<arch>-<major>.<minor>`
+* `<arch>-<major>.<minor>.<patch>`
+* `<arch>-latest`
+
+Otherwise:
+
+* `<arch>-<version>`
+* `<arch>-latest`
 
 ## Supported architectures
 
 * amd64
 * armhf
 
-## Usage
+## Add a new software
 
-```bash
-wget https://raw.githubusercontent.com/docker-crossarch/_common/master/docker_crossarch_common.sh
-chmod +x ./docker_crossarch_common.sh
-source ./docker_crossarch_common.sh
+Of course, we appreciate contributions.
 
-# This command builds the Dockerfile for all archs
-# The resulting images are tagged as `build:${arch}`
-crossarch_common_build "./Dockerfile"
+### Instructions
 
-# This command deploys all images
-# For each arch are pushed 4 different tags on the `crossarch/${build-name}` repo, prefixed with `${arch}-`:
-# * `${build-version_major}`
-# * `${build-version_major}.${build-version_minor}`
-# * `${build-version_major}.${build-version_minor}.${build-version_patch}`
-# * `latest`
-crossarch_common_deploy "docker-username" "docker-password" "build-name" "build-version"
-```
+* Fork the project
+* Duplicate one of the current software folder. It contains:
+  * A `Dockerfile`. It is a normal Dockerfile, except it does not have a `FROM` image
+  * A `get_version.sh`. This contains a function that must return the version of the softare
+  * A `README.md`. It describes how to use your image
+* Add a `BUILD=<yoursoftware>` job to the `.travis.yml` file. You can also append a `CROSSARCH_BUILD_IS_SEMVER=false` if the software does not follow semantic versioning
+* Submit a PR
+  
+### Notes for Dockerfile
 
-## Notes for Dockerfile
-
-* The [multiarch/alpine:edge](https://hub.docker.com/r/multiarch/alpine/) image is used.
+* A fresh (24h or less) Alpine edge image is used
 * The `CROSSARCH_ARCH` is set to the currently being built architecture
