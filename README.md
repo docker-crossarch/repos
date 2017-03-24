@@ -1,6 +1,6 @@
 # Docker Crossarch builds
 
-[![Build Status](https://travis-ci.org/docker-crossarch/repos.svg?branch=master)](https://travis-ci.org/docker-crossarch/repos)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-repositories-0db7ed.svg)](https://hub.docker.com/r/crossarch/) [![Build status](https://travis-ci.org/docker-crossarch/repos.svg?branch=master)](https://travis-ci.org/docker-crossarch/repos) [![Daily build](https://img.shields.io/badge/built-daily-yellow.svg)](https://travis-ci.org/docker-crossarch/repos/requests)
 
 This repository contains the code required to build cross-architecture Docker images on a daily basis.
 Images are built automatically on Travis CI.
