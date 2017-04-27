@@ -1,7 +1,7 @@
 RUN apk --no-cache add --virtual devs tar curl \
-  && if [ "${CROSSARCH_ARCH}" = "armhf" ]; then caddy_arch="arm"; \
+  && if [ "${CROSSARCH_ARCH}" = "armhf" ]; then caddy_arch="arm6"; \
   elif [ "${CROSSARCH_ARCH}" = "amd64" ]; then caddy_arch="amd64"; fi \
-  && curl --silent --location "https://caddyserver.com/download/build?os=linux&arch=${caddy_arch}&features=" | tar --extract --gzip --directory /usr/bin caddy \
+  && curl --silent --location "https://caddyserver.com/download/linux/${caddy_arch}" | tar --extract --gzip --directory /usr/bin caddy \
   && apk del --purge devs \
   && mkdir -p /caddy/config /caddy/tls
 
