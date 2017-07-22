@@ -95,14 +95,14 @@ EOF
 )
     echo -e "${prepend}\n$(cat "${tmp_dir}/Dockerfile")" > "${tmp_dir}/Dockerfile"
     local build_flags
-    build_flags="--no-cache"
+    build_flags=(--no-cache)
     
     if [ "${__crossarch_build_squash}" = "true" ]; then
-      build_flags="${build_flags} --squash"
+      build_flags+=(--squash)
     fi
     
     __info "Building ${arch} image..."
-    docker build "${build_flags}" -t "build:${arch}" "${tmp_dir}"
+    docker build "${build_flags[@]}" -t "build:${arch}" "${tmp_dir}"
     rm -rf "${tmp_dir}"
   done
 }
