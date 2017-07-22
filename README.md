@@ -35,7 +35,7 @@ Of course, we appreciate contributions.
   * A `Dockerfile`. It is a normal Dockerfile, except it does not have a `FROM` image
   * A `get_version.sh`. This contains a function that must return the version of the softare
   * A `README.md`. It describes how to use your image
-* Add a `BUILD=<yoursoftware>` job to the `.travis.yml` file. You can also append a `CROSSARCH_BUILD_IS_SEMVER=false` if the software does not follow semantic versioning
+* Add a `BUILD=<yoursoftware>` job to the `.travis.yml` file. You can also append a `CROSSARCH_BUILD_IS_SEMVER=false` if the software does not follow semantic versioning, and `CROSSARCH_BUILD_SQUASH=true` if you want to squash the image
 * Submit a PR
   
 ### Notes for Dockerfile

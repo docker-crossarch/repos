@@ -7,6 +7,7 @@ __crossarch_alpine_branch=${CROSSARCH_ALPINE_BRANCH:="edge"}
 __crossarch_use_multiarch_alpine=${CROSSARCH_USE_MULTIARCH_ALPINE:="false"}
 
 __crossarch_build_is_semver=${CROSSARCH_BUILD_IS_SEMVER:="true"}
+__crossarch_build_squash=${CROSSARCH_BUILD_SQUASH:="false"}
 
 __die () {
   printf '  ❌ \033[1;31mERROR: %s\033[0m\n' "$@" >&2  # bold red
@@ -93,9 +94,15 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"
 EOF
 )
     echo -e "${prepend}\n$(cat "${tmp_dir}/Dockerfile")" > "${tmp_dir}/Dockerfile"
+    local build_flags
+    build_flags="--no-cache"
+    
+    if [ "${__crossarch_build_squash}" = "true" ]; then
+      build_flags="${build_flags} --squash"
+    fi
     
     __info "Building ${arch} image..."
-    docker build --no-cache -t "build:${arch}" "${tmp_dir}"
+    docker build "${build_flags}" -t "build:${arch}" "${tmp_dir}"
     rm -rf "${tmp_dir}"
   done
 }
