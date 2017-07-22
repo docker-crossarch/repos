@@ -2,7 +2,7 @@
 
 __crossarch_common_version="1.1.0"
 
-__crossarch_archs=(${CROSSARCH_ARCHS:="amd64 armhf"})
+__crossarch_archs=("${CROSSARCH_ARCHS:="amd64 armhf"}")
 __crossarch_alpine_branch=${CROSSARCH_ALPINE_BRANCH:="edge"}
 __crossarch_use_multiarch_alpine=${CROSSARCH_USE_MULTIARCH_ALPINE:="false"}
 
@@ -27,9 +27,9 @@ __crossarch_welcome () {
   welcome=$(cat <<EOF
   ____                                  _     
  / ___|_ __ ___  ___ ___  __ _ _ __ ___| |__  
-| |   | '__/ _ \/ __/ __|/ _\` | '__/ __| '_ \ 
-| |___| | | (_) \__ \__ \ (_| | | | (__| | | |
- \____|_|  \___/|___/___/\__,_|_|  \___|_| |_|
+| |   | '__/ _ \\/ __/ __|/ _\` | '__/ __| '_ \\ 
+| |___| | | (_) \\__ \\__ \\ (_| | | | (__| | | |
+ \\____|_|  \\___/|___/___/\\__,_|_|  \\___|_| |_|
  
 Version ${__crossarch_common_version}
 EOF
@@ -42,16 +42,16 @@ __crossarch_common_parse_semver () {
   local re='[^0-9]*\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\)\([0-9A-Za-z-]*\)'
   # MAJOR
   # shellcheck disable=SC2001
-  eval "${2}"="$(echo "${1}" | sed -e "s#${re}#\1#")"
+  eval "${2}"="$(echo "${1}" | sed -e "s#${re}#\\1#")"
   # MINOR
   # shellcheck disable=SC2001
-  eval "${3}"="$(echo "${1}" | sed -e "s#${re}#\2#")"
+  eval "${3}"="$(echo "${1}" | sed -e "s#${re}#\\2#")"
   # MINOR
   # shellcheck disable=SC2001
-  eval "${4}"="$(echo "${1}" | sed -e "s#${re}#\3#")"
+  eval "${4}"="$(echo "${1}" | sed -e "s#${re}#\\3#")"
   # SPECIAL
   # shellcheck disable=SC2001
-  eval "${5}"="$(echo "${1}" | sed -e "s#${re}#\4#")"
+  eval "${5}"="$(echo "${1}" | sed -e "s#${re}#\\4#")"
 }
 
 crossarch_common_build () {
@@ -93,7 +93,8 @@ ENV CROSSARCH_ARCH=${arch}
 RUN echo "Building image for \${CROSSARCH_ARCH}"
 EOF
 )
-    echo -e "${prepend}\n$(cat "${tmp_dir}/Dockerfile")" > "${tmp_dir}/Dockerfile"
+    echo -e "${prepend}\\n$(cat "${tmp_dir}/Dockerfile")" > "${tmp_dir}/Dockerfile"
+    
     local build_flags
     build_flags=(--no-cache)
     
