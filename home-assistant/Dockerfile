@@ -1,4 +1,4 @@
-RUN apk add --no-cache python3 python3-dev ca-certificates python3-dev build-base linux-headers \
+RUN apk add --no-cache python3 ca-certificates python3-dev build-base linux-headers \
  && update-ca-certificates \
  && python3 -m ensurepip \
  && pip3 --no-cache-dir install homeassistant \
