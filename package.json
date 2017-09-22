@@ -1,0 +1,28 @@
+{
+  "name": "docker-crossarch",
+  "version": "1.0.0",
+  "description": "Docker cross-architecture images",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/docker-crossarch/repos.git"
+  },
+  "author": "Marvin ROGER",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/docker-crossarch/repos/issues"
+  },
+  "homepage": "https://github.com/docker-crossarch/repos#readme",
+  "dependencies": {
+    "@std/esm": "^0.10.2",
+    "axios": "^0.16.2",
+    "rimraf": "^2.6.2",
+    "semver": "^5.4.1"
+  },
+  "@std/esm": {
+    "esm": "js"
+  }
+}

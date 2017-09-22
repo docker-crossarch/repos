@@ -56,6 +56,7 @@ __crossarch_common_parse_semver () {
 
 crossarch_common_build () {
   local dockerfile="${1}"
+  local cache_folder="${2}"
   
   __crossarch_welcome
   
@@ -112,12 +113,15 @@ crossarch_common_deploy () {
   local docker_password="${2}"
   local build_name="${3}"
   local build_version="${4}"
+  local cache_folder="${5}"
   
   local build_version_major=0
   local build_version_minor=0
   local build_version_patch=0
   # shellcheck disable=SC2034
   local build_version_special=""
+  
+  local cached_version=""
   
   __info "Deploying ${build_name} (${build_version})..."
     
