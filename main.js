@@ -73,7 +73,7 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
   const version = await repofile.getVersion(call)
 
   const publishedVersionRecord = await getLatestPublishedVersionRecord(fieldbookCreds, BUILD)
-  if (publishedVersionRecord.version === version) {
+  if (publishedVersionRecord.version === version && BUILD !== 'alpine') {
     console.log('Software not updated since last push - skipping deployment')
     return
   }
