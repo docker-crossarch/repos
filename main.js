@@ -84,8 +84,11 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
 
   console.log(`Deploying ${BUILD} (${version})`)
 
-  let semver = parseSemver(version)
-  if (BUILD !== 'alpine') console.log(`Version major: ${semver.major}, minor: ${semver.minor}, patch: ${semver.patch}`)
+  let semver
+  if (BUILD !== 'alpine') {
+    semver = parseSemver(version)
+    console.log(`Version major: ${semver.major}, minor: ${semver.minor}, patch: ${semver.patch}`)
+  }
 
   console.log('Pushing images to Docker Hub...')
 
