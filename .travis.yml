@@ -10,15 +10,10 @@ cache:
 
 env:
   matrix:
-    - BUILD=alpine CROSSARCH_USE_MULTIARCH_ALPINE=true CROSSARCH_BUILD_IS_SEMVER=false CROSSARCH_BUILD_SQUASH=false
+    - BUILD=alpine
     - BUILD=caddy
     - BUILD=home-assistant
     - BUILD=mosquitto
     - BUILD=node
-install:
-  - set -eo pipefail
-  - npm install
 script:
-  - set -eo pipefail
-  - |
-    node ./index.js
+  - node ./index.js
