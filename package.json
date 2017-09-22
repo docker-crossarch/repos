@@ -23,6 +23,7 @@
     "semver": "^5.4.1"
   },
   "@std/esm": {
-    "esm": "js"
+    "esm": "js",
+    "cjs": true
   }
 }
