@@ -1,6 +1,6 @@
+const REGEX_VERSION = /mosquitto version ([0-9]+.[0-9]+.[0-9]+)/
+
 export async function getVersion (call) {
-  // (docker run --rm build:amd64 -h || true) | grep -oP "(?<=mosquitto version )(.+)(?=\(build)"
   const output = await call(['-h', '||', 'true'])
-  console.log(output)
-  process.exit(2)
+  return REGEX_VERSION.exec(output.trim())[1]
 }
