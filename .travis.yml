@@ -1,35 +1,19 @@
 sudo: required
 services:
   - docker
-language: bash
-addons:
-  apt:
-    sources:
-      - debian-sid
-    packages:
-      - shellcheck
+language: node_js
+node_js:
+  - "8"
+cache:
+  directories:
+    - "node_modules"
+
 env:
   matrix:
-    - CROSSARCH_COMMON=1
-    - BUILD=alpine CROSSARCH_USE_MULTIARCH_ALPINE=true CROSSARCH_BUILD_IS_SEMVER=false CROSSARCH_BUILD_SQUASH=false
+    - BUILD=alpine
     - BUILD=caddy
     - BUILD=home-assistant
     - BUILD=mosquitto
     - BUILD=node
-install:
-  - set -eo pipefail
-  - chmod +x ./docker_crossarch_common.sh
-  - chmod +x ./**/get_version.sh
 script:
-  - set -eo pipefail
-  - |
-    if [[ -z "${CROSSARCH_COMMON+x}" ]]; then
-      source ./docker_crossarch_common.sh
-      crossarch_common_build "./${BUILD}/Dockerfile"
-      source "./${BUILD}/get_version.sh"
-      local build_version
-      build_version=$(crossarch_build_get_version)
-      crossarch_common_deploy "${DOCKER_USERNAME}" "${DOCKER_PASSWORD}" "${BUILD}" "${build_version}"
-    else
-      shellcheck ./docker_crossarch_common.sh
-    fi
+  - node ./index.js
