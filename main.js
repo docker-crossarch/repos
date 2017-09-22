@@ -36,7 +36,7 @@ async function main () {
     const tempDir = generateTempName('crossarch')
     await createDirectory(tempDir)
 
-    await copyFile(path.join(__dirname, BUILD, 'Dockerfile'), path.join(tempDir, 'Dockerfile'))
+    await copyFile(path.join(__dirname, 'repos', BUILD, 'Dockerfile'), path.join(tempDir, 'Dockerfile'))
 
     let imageToUse = `crossarch/alpine:${arch}-${MULTIARCH_ALPINE_BRANCH}`
     // handle special alpine case
@@ -68,7 +68,7 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
   * Getting version
   */
 
-  const repofile = await import(path.join(__dirname, BUILD, 'Repofile.js')) // eslint-disable-line
+  const repofile = await import(path.join(__dirname, 'repos', BUILD, 'Repofile.js')) // eslint-disable-line
   const call = args => runCommand('docker', ['run', '--rm', 'build:amd64'].concat(args), true)
   const version = await repofile.getVersion(call)
 
