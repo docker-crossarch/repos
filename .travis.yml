@@ -9,6 +9,8 @@ cache:
     - "node_modules"
 
 env:
+  global:
+    - FORCE_COLOR=true
   matrix:
     - BUILD=alpine
     - BUILD=caddy
