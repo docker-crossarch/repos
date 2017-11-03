@@ -4,6 +4,7 @@
 [![Build status](https://img.shields.io/travis/docker-crossarch/repos/master.svg?style=flat-square)](https://travis-ci.org/docker-crossarch/repos)
 [![Built daily](https://img.shields.io/badge/built-daily-yellow.svg?style=flat-square)](https://travis-ci.org/docker-crossarch/repos/requests)
 [![Fieldbook](https://img.shields.io/badge/Fieldbook-versions-orange.svg?style=flat-square)](https://fieldbook.com/books/59c4cd5751a5870300f17e60)
+[![dependencies Status](https://img.shields.io/david/docker-crossarch/repos.svg?style=flat-square)](https://david-dm.org/docker-crossarch/repos)
 
 This repository contains the code required to build cross-architecture Docker images on a daily basis.
 Images are built automatically on Travis CI.

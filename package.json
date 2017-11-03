@@ -17,9 +17,9 @@
   },
   "homepage": "https://github.com/docker-crossarch/repos#readme",
   "dependencies": {
-    "@std/esm": "^0.10.2",
+    "@std/esm": "^0.12.5",
     "axios": "^0.16.2",
-    "clor": "^6.0.0",
+    "clorox": "^1.0.1",
     "rimraf": "^2.6.2",
     "semver": "^5.4.1"
   },

@@ -17,5 +17,6 @@ env:
     - BUILD=home-assistant
     - BUILD=mosquitto
     - BUILD=node
+    - BUILD=ngrok
 script:
   - node ./index.js
