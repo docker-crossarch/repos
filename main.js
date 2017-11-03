@@ -98,23 +98,19 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
     // special case for Alpine
     const dockerTag = suffix => runCommand('docker', ['tag', `build:${arch}`, `crossarch/${BUILD}:${arch}-${suffix}`])
     const dockerPush = suffix => runCommand('docker', ['push', `crossarch/${BUILD}:${arch}-${suffix}`])
+    const dockerTagAndPush = async suffix => {
+      await dockerTag(suffix)
+      awiat dockerPush(suffix)
+    }
 
     if (BUILD !== 'alpine') {
-      await dockerTag(semver.major)
-      await dockerTag(`${semver.major}.${semver.minor}`)
-      await dockerTag(`${semver.major}.${semver.minor}.${semver.patch}`)
-      await dockerTag('latest')
-
-      await dockerPush(semver.major)
-      await dockerPush(`${semver.major}.${semver.minor}`)
-      await dockerPush(`${semver.major}.${semver.minor}.${semver.patch}`)
-      await dockerPush('latest')
+      await dockerTagAndPush(semver.major)
+      await dockerTagAndPush(`${semver.major}.${semver.minor}`)
+      await dockerTagAndPush(`${semver.major}.${semver.minor}.${semver.patch}`)
+      await dockerTagAndPush('latest')
     } else {
-      await dockerTag(version)
-      await dockerTag('latest')
-
-      await dockerPush(version)
-      await dockerPush('latest')
+      await dockerTagAndPush(version)
+      await dockerTagAndPush('latest')
     }
   }
 
