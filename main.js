@@ -100,7 +100,7 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
     const dockerPush = suffix => runCommand('docker', ['push', `crossarch/${BUILD}:${arch}-${suffix}`])
     const dockerTagAndPush = async suffix => {
       await dockerTag(suffix)
-      awiat dockerPush(suffix)
+      await dockerPush(suffix)
     }
 
     if (BUILD !== 'alpine') {
