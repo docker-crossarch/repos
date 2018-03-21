@@ -4,9 +4,7 @@ services:
 language: node_js
 node_js:
   - "8"
-cache:
-  directories:
-    - "node_modules"
+cache: yarn
 
 env:
   global:
@@ -18,5 +16,8 @@ env:
     - BUILD=mosquitto
     - BUILD=node
     - BUILD=ngrok
+
+install:
+  - yarn
 script:
   - node ./index.js
