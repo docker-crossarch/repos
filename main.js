@@ -103,14 +103,17 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
       await dockerPush(suffix)
     }
 
+    const tags = ['latest']
     if (BUILD !== 'alpine') {
-      await dockerTagAndPush(semver.major)
-      await dockerTagAndPush(`${semver.major}.${semver.minor}`)
-      await dockerTagAndPush(`${semver.major}.${semver.minor}.${semver.patch}`)
-      await dockerTagAndPush('latest')
+      tags.push(semver.major)
+      tags.push(`${semver.major}.${semver.minor}`)
+      tags.push(`${semver.major}.${semver.minor}.${semver.patch}`)
     } else {
-      await dockerTagAndPush(version)
-      await dockerTagAndPush('latest')
+      tags.push(version)
+    }
+
+    for (let tag of tags) {
+      await dockerTagAndPush(tag)
     }
   }
 
