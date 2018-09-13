@@ -15,9 +15,11 @@ import {
 } from './lib/fs'
 import { parseSemver } from './lib/semver'
 import { log, info, warning, error } from './lib/log'
+import settings from './repos/settings'
 
 const BUILD_FOR_ARCHS = ['amd64', 'armhf']
 const MULTIARCH_ALPINE_BRANCH = 'edge'
+const MULTIARCH_UBUNTU_BRANCH = 'bionic-slim'
 
 async function main() {
   const BUILD = getTextFromEnv('BUILD')
@@ -31,11 +33,16 @@ async function main() {
     apiKey: AIRTABLE_API_KEY,
   }
 
-  info(
-    `Building Crossarch images for ${BUILD_FOR_ARCHS.join(
-      ', '
-    )} (on top of Alpine ${MULTIARCH_ALPINE_BRANCH})`
-  )
+  const isOsBuild = BUILD.startsWith('_')
+  const buildName = isOsBuild ? BUILD.substring(1) : BUILD
+  const buildPath = BUILD
+
+  let buildSettings = null
+  if (!isOsBuild) {
+    buildSettings = settings[buildName]
+  }
+
+  info(`Building Crossarch images for ${BUILD_FOR_ARCHS.join(', ')}`)
 
   log('Registering QEMU...')
 
@@ -56,20 +63,22 @@ async function main() {
     await createDirectory(tempDir)
 
     await copyFile(
-      path.join(__dirname, 'repos', BUILD, 'Dockerfile'),
+      path.join(__dirname, 'repos', buildPath, 'Dockerfile'),
       path.join(tempDir, 'Dockerfile')
     )
 
-    let imageToUse = `crossarch/alpine:${arch}-${MULTIARCH_ALPINE_BRANCH}`
-    // handle special alpine case
-    if (BUILD === 'alpine') {
-      imageToUse = 'multiarch/alpine'
-      let multiarchAlpineArch
-      if (arch === 'amd64') multiarchAlpineArch = 'x86_64'
-      else if (arch === 'armhf') multiarchAlpineArch = 'armhf'
-
-      imageToUse += `:${multiarchAlpineArch}-${MULTIARCH_ALPINE_BRANCH}`
+    let imageToUse
+    if (!isOsBuild) {
+      imageToUse = `crossarch/${buildSettings.image}:${arch}-latest`
+    } else {
+      if (buildName === 'alpine') {
+        imageToUse = `multiarch/alpine:${arch}-${MULTIARCH_ALPINE_BRANCH}`
+      } else if (buildName === 'ubuntu') {
+        imageToUse = `multiarch/ubuntu-debootstrap:${arch}-${MULTIARCH_UBUNTU_BRANCH}`
+      }
     }
+
+    log(`Using ${imageToUse}`)
 
     const prepend = `\
 FROM ${imageToUse}
@@ -90,12 +99,12 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
   * Getting version
   */
 
-  const repofile = await import(path.join(__dirname, 'repos', BUILD, 'Repofile.js')) // eslint-disable-line
+  const repofile = await import(path.join(__dirname, 'repos', buildPath, 'Repofile.js')) // eslint-disable-line
   const call = args => runCommand('docker', ['run', '--rm', 'build:amd64'].concat(args), true)
   const version = await repofile.getVersion(call)
 
-  const publishedVersionRecord = await getLatestPublishedVersionRecord(airtableCreds, BUILD)
-  if (publishedVersionRecord.version === version && BUILD !== 'alpine') {
+  const publishedVersionRecord = await getLatestPublishedVersionRecord(airtableCreds, buildName)
+  if (publishedVersionRecord.version === version && !isOsBuild) {
     warning('Software not updated since last push - skipping deployment')
     return
   }
@@ -104,13 +113,7 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
   * Deployment
   */
 
-  info(`Deploying ${BUILD} (${version})`)
-
-  let semver
-  if (BUILD !== 'alpine') {
-    semver = parseSemver(version)
-    log(`Version major: ${semver.major}, minor: ${semver.minor}, patch: ${semver.patch}`)
-  }
+  info(`Deploying ${buildName} (${version})`)
 
   log('Pushing images to Docker Hub...')
 
@@ -118,22 +121,34 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
   for (const arch of BUILD_FOR_ARCHS) {
     // special case for Alpine
     const dockerTag = suffix =>
-      runCommand('docker', ['tag', `build:${arch}`, `crossarch/${BUILD}:${arch}-${suffix}`])
+      runCommand('docker', ['tag', `build:${arch}`, `crossarch/${buildName}:${arch}-${suffix}`])
     const dockerPush = suffix =>
-      runCommand('docker', ['push', `crossarch/${BUILD}:${arch}-${suffix}`])
+      runCommand('docker', ['push', `crossarch/${buildName}:${arch}-${suffix}`])
     const dockerTagAndPush = async suffix => {
       await dockerTag(suffix)
       await dockerPush(suffix)
     }
 
     const tags = ['latest']
-    if (BUILD !== 'alpine') {
+
+    if (isOsBuild || buildSettings.versioning === 'as-is') {
+      tags.push(version)
+    } else {
+      let manipulatedVersion = version
+      if (buildSettings.versioning === 'major-minor') {
+        manipulatedVersion += '.0'
+      }
+
+      const semver = parseSemver(manipulatedVersion)
       tags.push(semver.major)
       tags.push(`${semver.major}.${semver.minor}`)
-      tags.push(`${semver.major}.${semver.minor}.${semver.patch}`)
-    } else {
-      tags.push(version)
+
+      if (buildSettings.versioning === 'semver') {
+        tags.push(`${semver.major}.${semver.minor}.${semver.patch}`)
+      }
     }
+
+    log(`Pushing tags ${tags.join(', ')}`)
 
     for (let tag of tags) {
       await dockerTagAndPush(tag)

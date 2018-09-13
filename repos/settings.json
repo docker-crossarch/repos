@@ -1,0 +1,26 @@
+{
+  "caddy": {
+    "image": "alpine",
+    "versioning": "semver"
+  },
+  "home-assistant": {
+    "image": "alpine",
+    "versioning": "semver"
+  },
+  "mosquitto": {
+    "image": "alpine",
+    "versioning": "semver"
+  },
+  "nano": {
+    "image": "ubuntu",
+    "versioning": "major-minor"
+  },
+  "ngrok": {
+    "image": "alpine",
+    "versioning": "semver"
+  },
+  "node": {
+    "image": "alpine",
+    "versioning": "semver"
+  }
+}

@@ -3,14 +3,15 @@ services:
   - docker
 language: node_js
 node_js:
-  - "8"
+  - '8'
 cache: yarn
 
 env:
   global:
     - FORCE_COLOR=true
   matrix:
-    - BUILD=alpine
+    - BUILD=_alpine
+    - BUILD=_ubuntu
     - BUILD=caddy
     - BUILD=home-assistant
     - BUILD=mosquitto
