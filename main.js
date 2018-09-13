@@ -1,33 +1,51 @@
 import path from 'path'
-import {getLatestPublishedVersionRecord, setLatestPublishedVersion} from './lib/latest-published-version'
-import {getTextFromEnv} from './lib/env'
-import {runCommand} from './lib/shell'
-import {generateTempName, createDirectory, copyFile, readFile, writeFile, deleteDirectory} from './lib/fs'
-import {parseSemver} from './lib/semver'
-import {log, info, warning, error} from './lib/log'
+import {
+  getLatestPublishedVersionRecord,
+  setLatestPublishedVersion,
+} from './lib/latest-published-version'
+import { getTextFromEnv } from './lib/env'
+import { runCommand } from './lib/shell'
+import {
+  generateTempName,
+  createDirectory,
+  copyFile,
+  readFile,
+  writeFile,
+  deleteDirectory,
+} from './lib/fs'
+import { parseSemver } from './lib/semver'
+import { log, info, warning, error } from './lib/log'
 
 const BUILD_FOR_ARCHS = ['amd64', 'armhf']
 const MULTIARCH_ALPINE_BRANCH = 'edge'
 
-async function main () {
+async function main() {
   const BUILD = getTextFromEnv('BUILD')
   const DOCKER_USERNAME = getTextFromEnv('DOCKER_USERNAME')
   const DOCKER_PASSWORD = getTextFromEnv('DOCKER_PASSWORD')
-  const FIELDBOOK_BASE_URL = getTextFromEnv('FIELDBOOK_BASE_URL')
-  const FIELDBOOK_USERNAME = getTextFromEnv('FIELDBOOK_USERNAME')
-  const FIELDBOOK_PASSWORD = getTextFromEnv('FIELDBOOK_PASSWORD')
+  const AIRTABLE_BASE_URL = getTextFromEnv('AIRTABLE_BASE_URL')
+  const AIRTABLE_API_KEY = getTextFromEnv('AIRTABLE_API_KEY')
 
-  const fieldbookCreds = {
-    baseUrl: FIELDBOOK_BASE_URL,
-    username: FIELDBOOK_USERNAME,
-    password: FIELDBOOK_PASSWORD
+  const airtableCreds = {
+    baseUrl: AIRTABLE_BASE_URL,
+    apiKey: AIRTABLE_API_KEY,
   }
 
-  info(`Building Crossarch images for ${BUILD_FOR_ARCHS.join(', ')} (on top of Alpine ${MULTIARCH_ALPINE_BRANCH})`)
+  info(
+    `Building Crossarch images for ${BUILD_FOR_ARCHS.join(
+      ', '
+    )} (on top of Alpine ${MULTIARCH_ALPINE_BRANCH})`
+  )
 
   log('Registering QEMU...')
 
-  await runCommand('docker', ['run', '--rm', '--privileged', 'multiarch/qemu-user-static:register', '--reset'])
+  await runCommand('docker', [
+    'run',
+    '--rm',
+    '--privileged',
+    'multiarch/qemu-user-static:register',
+    '--reset',
+  ])
 
   /*
   * Build
@@ -37,7 +55,10 @@ async function main () {
     const tempDir = generateTempName('crossarch')
     await createDirectory(tempDir)
 
-    await copyFile(path.join(__dirname, 'repos', BUILD, 'Dockerfile'), path.join(tempDir, 'Dockerfile'))
+    await copyFile(
+      path.join(__dirname, 'repos', BUILD, 'Dockerfile'),
+      path.join(tempDir, 'Dockerfile')
+    )
 
     let imageToUse = `crossarch/alpine:${arch}-${MULTIARCH_ALPINE_BRANCH}`
     // handle special alpine case
@@ -73,7 +94,7 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
   const call = args => runCommand('docker', ['run', '--rm', 'build:amd64'].concat(args), true)
   const version = await repofile.getVersion(call)
 
-  const publishedVersionRecord = await getLatestPublishedVersionRecord(fieldbookCreds, BUILD)
+  const publishedVersionRecord = await getLatestPublishedVersionRecord(airtableCreds, BUILD)
   if (publishedVersionRecord.version === version && BUILD !== 'alpine') {
     warning('Software not updated since last push - skipping deployment')
     return
@@ -96,8 +117,10 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
   await runCommand('docker', ['login', '-u', DOCKER_USERNAME, '-p', DOCKER_PASSWORD])
   for (const arch of BUILD_FOR_ARCHS) {
     // special case for Alpine
-    const dockerTag = suffix => runCommand('docker', ['tag', `build:${arch}`, `crossarch/${BUILD}:${arch}-${suffix}`])
-    const dockerPush = suffix => runCommand('docker', ['push', `crossarch/${BUILD}:${arch}-${suffix}`])
+    const dockerTag = suffix =>
+      runCommand('docker', ['tag', `build:${arch}`, `crossarch/${BUILD}:${arch}-${suffix}`])
+    const dockerPush = suffix =>
+      runCommand('docker', ['push', `crossarch/${BUILD}:${arch}-${suffix}`])
     const dockerTagAndPush = async suffix => {
       await dockerTag(suffix)
       await dockerPush(suffix)
@@ -118,12 +141,14 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
   }
 
   info('Updating latest published version...')
-  await setLatestPublishedVersion(fieldbookCreds, publishedVersionRecord, version)
+  await setLatestPublishedVersion(airtableCreds, publishedVersionRecord, version)
 }
 
-main().then(() => {
-  info('Done.')
-}).catch((err) => {
-  error(err.stack)
-  process.exit(1)
-})
+main()
+  .then(() => {
+    info('Done.')
+  })
+  .catch(err => {
+    error(err.stack)
+    process.exit(1)
+  })
