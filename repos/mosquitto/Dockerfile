@@ -1,5 +1,5 @@
 RUN apk add --no-cache mosquitto \
- && mkdir -p /mosquitto/config /mosquitto/data
+  && mkdir -p /mosquitto/config /mosquitto/data
 
 WORKDIR /mosquitto
 
