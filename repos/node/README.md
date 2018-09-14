@@ -1,5 +1,7 @@
 # Node.js Crossarch
 
+⚠️ As of 2018-09-14, this image ships with the more maintained Node.js LTS instead of Current.
+
 ## Usage
 
 ```bash
