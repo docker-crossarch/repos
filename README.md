@@ -11,17 +11,19 @@ Images are built automatically on Travis CI.
 
 ## What does it do?
 
-The build script emulates, using QEMU, all supported environments and triggers a Docker build of all Dockerfile. If the software follow semver, the following tags are pushed:
-
-- `<arch>-<major>`
-- `<arch>-<major>.<minor>`
-- `<arch>-<major>.<minor>.<patch>`
-- `<arch>-latest`
-
-Otherwise:
+The build script emulates, using QEMU, all supported environments and triggers a Docker build of all Dockerfile. Then, the following tags are pushed:
 
 - `<arch>-<version>`
 - `<arch>-latest`
+
+If the release scheme of the software is MAJOR.MINOR, these tags are also pushed:
+
+- `<arch>-<major>`
+- `<arch>-<major>.<minor>`
+
+Plus, if the software follows semver:
+
+- `<arch>-<major>.<minor>.<patch>`
 
 ## Supported architectures
 
@@ -35,14 +37,18 @@ Of course, we appreciate contributions.
 ### Instructions
 
 - Fork the project
-- Duplicate one of the current software folder in the `repos` directory. It contains:
+- Duplicate one of the current software folder in the [repos](./repos) directory. It contains:
   - A `Dockerfile`. It is a normal Dockerfile, except it does not have a `FROM` image
   - A `Repofile.js`. This contains a function that must return the version of the software
   - A `README.md`. It describes how to use your image
+- Add a `<yoursoftware>` key to the [repos/settings.json](./repos/settings.json) file
+  The following settings must be set:
+  - `image`: The base image to use. Can be `alpine` or `ubuntu`
+  - `versioning`: The versioning scheme of the software. Can be `as-is`, `major-minor`, or `semver`
 - Add a `BUILD=<yoursoftware>` job to the `.travis.yml` file
 - Submit a PR
 
 ### Notes for Dockerfile
 
-- A fresh (24h or less) Alpine edge image is used
+- A fresh, up-to-date (24h or less) Alpine (edge) or Ubuntu (latest release) image is used
 - The `CROSSARCH_ARCH` environment variable is set to the currently being built architecture
