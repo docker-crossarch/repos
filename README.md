@@ -2,8 +2,8 @@
 
 [![Docker Hub](https://img.shields.io/badge/Docker%20Hub-repositories-0db7ed.svg?style=flat-square)](https://hub.docker.com/r/crossarch/)
 [![Build status](https://img.shields.io/travis/com/docker-crossarch/repos/master.svg?style=flat-square)](https://travis-ci.com/docker-crossarch/repos)
-[![Built daily](https://img.shields.io/badge/built-daily-yellow.svg?style=flat-square)](https://travis-ci.com/docker-crossarch/repos/requests)
-[![Published versions](https://img.shields.io/badge/Published-versions-orange.svg?style=flat-square)](https://airtable.com/shr0t9RrpGUODInDX)
+[![Built daily](https://img.shields.io/badge/built-daily-yellow.svg?style=flat-square)](https://travis-ci.com/docker-crossarch/repos/builds)
+[![Published versions](https://img.shields.io/badge/published-versions-orange.svg?style=flat-square)](https://airtable.com/shr0t9RrpGUODInDX)
 [![dependencies Status](https://img.shields.io/david/docker-crossarch/repos.svg?style=flat-square)](https://david-dm.org/docker-crossarch/repos)
 
 This repository contains the code required to build cross-architecture Docker images on a daily basis.
