@@ -21,6 +21,11 @@ const BUILD_FOR_ARCHS = ['amd64', 'armhf']
 const MULTIARCH_ALPINE_BRANCH = 'edge'
 const MULTIARCH_UBUNTU_BRANCH = 'bionic-slim'
 
+function failWithError(msg) {
+  error(msg)
+  process.exit(1)
+}
+
 async function main() {
   const BUILD = getTextFromEnv('BUILD')
   const DOCKER_USERNAME = getTextFromEnv('DOCKER_USERNAME')
@@ -55,8 +60,8 @@ async function main() {
   ])
 
   /*
-  * Build
-  */
+   * Build
+   */
 
   for (const arch of BUILD_FOR_ARCHS) {
     const tempDir = generateTempName('crossarch')
@@ -96,12 +101,16 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
   }
 
   /*
-  * Getting version
-  */
+   * Getting version
+   */
 
   const repofile = await import(path.join(__dirname, 'repos', buildPath, 'Repofile.js')) // eslint-disable-line
   const call = args => runCommand('docker', ['run', '--rm', 'build:amd64'].concat(args), true)
-  const version = await repofile.getVersion(call)
+  try {
+    const version = await repofile.getVersion(call)
+  } catch (err) {
+    failWithError(`Could not find repo version: ${err.stack}`)
+  }
 
   const publishedVersionRecord = await getLatestPublishedVersionRecord(airtableCreds, buildName)
   if (publishedVersionRecord.version === version && !isOsBuild) {
@@ -110,8 +119,8 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
   }
 
   /*
-  * Deployment
-  */
+   * Deployment
+   */
 
   info(`Deploying ${buildName} (${version})`)
 
@@ -164,6 +173,5 @@ main()
     info('Done.')
   })
   .catch(err => {
-    error(err.stack)
-    process.exit(1)
+    failWithError(err.stack)
   })
