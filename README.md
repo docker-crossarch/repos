@@ -1,8 +1,8 @@
 # Docker Crossarch builds
 
 [![Docker Hub](https://img.shields.io/badge/Docker%20Hub-repositories-0db7ed.svg?style=flat-square)](https://hub.docker.com/r/crossarch/)
-[![Build status](https://img.shields.io/travis/docker-crossarch/repos/master.svg?style=flat-square)](https://travis-ci.org/docker-crossarch/repos)
-[![Built daily](https://img.shields.io/badge/built-daily-yellow.svg?style=flat-square)](https://travis-ci.org/docker-crossarch/repos/requests)
+[![Build status](https://img.shields.io/travis/com/docker-crossarch/repos/master.svg?style=flat-square)](https://travis-ci.com/docker-crossarch/repos)
+[![Built daily](https://img.shields.io/badge/built-daily-yellow.svg?style=flat-square)](https://travis-ci.com/docker-crossarch/repos/requests)
 [![Published versions](https://img.shields.io/badge/Published-versions-orange.svg?style=flat-square)](https://airtable.com/shr0t9RrpGUODInDX)
 [![dependencies Status](https://img.shields.io/david/docker-crossarch/repos.svg?style=flat-square)](https://david-dm.org/docker-crossarch/repos)
 
