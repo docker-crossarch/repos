@@ -21,7 +21,7 @@
     "colorette": "^1.0.1",
     "esm": "^3.0.82",
     "rimraf": "^2.6.2",
-    "semver": "^5.4.1"
+    "semver": "^6.0.0"
   },
   "esm": {
     "cjs": true
