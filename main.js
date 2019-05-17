@@ -106,8 +106,9 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
 
   const repofile = await import(path.join(__dirname, 'repos', buildPath, 'Repofile.js')) // eslint-disable-line
   const call = args => runCommand('docker', ['run', '--rm', 'build:amd64'].concat(args), true)
+  let version
   try {
-    const version = await repofile.getVersion(call)
+    version = await repofile.getVersion(call)
   } catch (err) {
     failWithError(`Could not find repo version: ${err.stack}`)
   }
