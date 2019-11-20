@@ -127,42 +127,57 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
 
   log('Pushing images to Docker Hub...')
 
+  const tags = ['latest']
+
+  if (isOsBuild || buildSettings.versioning === 'as-is') {
+    tags.push(version)
+  } else {
+    let manipulatedVersion = version
+    if (buildSettings.versioning === 'major-minor') {
+      manipulatedVersion += '.0'
+    }
+
+    const semver = parseSemver(manipulatedVersion)
+    tags.push(semver.major)
+    tags.push(`${semver.major}.${semver.minor}`)
+
+    if (buildSettings.versioning === 'semver') {
+      tags.push(`${semver.major}.${semver.minor}.${semver.patch}`)
+    }
+  }
+
   await runCommand('docker', ['login', '-u', DOCKER_USERNAME, '-p', DOCKER_PASSWORD])
   for (const arch of BUILD_FOR_ARCHS) {
-    // special case for Alpine
-    const dockerTag = suffix =>
-      runCommand('docker', ['tag', `build:${arch}`, `crossarch/${buildName}:${arch}-${suffix}`])
-    const dockerPush = suffix =>
-      runCommand('docker', ['push', `crossarch/${buildName}:${arch}-${suffix}`])
-    const dockerTagAndPush = async suffix => {
-      await dockerTag(suffix)
-      await dockerPush(suffix)
-    }
-
-    const tags = ['latest']
-
-    if (isOsBuild || buildSettings.versioning === 'as-is') {
-      tags.push(version)
-    } else {
-      let manipulatedVersion = version
-      if (buildSettings.versioning === 'major-minor') {
-        manipulatedVersion += '.0'
-      }
-
-      const semver = parseSemver(manipulatedVersion)
-      tags.push(semver.major)
-      tags.push(`${semver.major}.${semver.minor}`)
-
-      if (buildSettings.versioning === 'semver') {
-        tags.push(`${semver.major}.${semver.minor}.${semver.patch}`)
-      }
-    }
-
     log(`Pushing tags ${tags.join(', ')}`)
 
     for (let tag of tags) {
-      await dockerTagAndPush(tag)
+      runCommand('docker', ['tag', `build:${arch}`, `crossarch/${buildName}:${arch}-${tag}`])
+      runCommand('docker', ['push', `crossarch/${buildName}:${arch}-${tag}`])
     }
+  }
+
+  info('Creating and pushing manifests...')
+  for (const tag of tags) {
+    const childImages = BUILD_FOR_ARCHS.map(arch => `build:${arch}`)
+    runCommand('docker', ['manifest', 'create', `crossarch/${buildName}:${tag}`, ...childImages])
+    for (const arch of BUILD_FOR_ARCHS) {
+      let archDescription = ['--os', 'linux']
+      if (arch === 'amd64') {
+        archDescription = archDescription.concat(['--arch', 'amd64'])
+      } else if (arch === 'armhf') {
+        archDescription = archDescription.concat(['--arch', 'arm', '--variant', 'v7'])
+      }
+
+      runCommand('docker', [
+        'manifest',
+        'annotate',
+        `crossarch/${buildName}:${tag}`,
+        `build:${arch}`,
+        ...archDescription,
+      ])
+    }
+
+    runCommand('docker', ['manifest', 'push', `crossarch/${buildName}:${tag}`)
   }
 
   info('Updating latest published version...')

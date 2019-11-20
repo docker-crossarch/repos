@@ -28,6 +28,7 @@ jobs:
       - name: Run build script
         run: node ./index.js
         env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
           BUILD: ${{ matrix.BUILD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
