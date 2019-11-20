@@ -1,0 +1,34 @@
+name: Build projects
+on:
+  push:
+  schedule:
+    # Everyday at 00:00 UTC and 12:00 UTC
+    - cron: '0 0,12 * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        BUILD:
+          - _alpine
+          - _ubuntu
+          - caddy
+          - home-assistant
+          - mosquitto
+          - node
+          - ngrok
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Run build script
+        run: node ./index.js
+        env:
+          BUILD: ${{ matrix.BUILD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          AIRTABLE_BASE_URL: ${{ secrets.AIRTABLE_BASE_URL }}
+          AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
