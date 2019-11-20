@@ -151,15 +151,20 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
     log(`Pushing tags ${tags.join(', ')}`)
 
     for (let tag of tags) {
-      runCommand('docker', ['tag', `build:${arch}`, `crossarch/${buildName}:${arch}-${tag}`])
-      runCommand('docker', ['push', `crossarch/${buildName}:${arch}-${tag}`])
+      await runCommand('docker', ['tag', `build:${arch}`, `crossarch/${buildName}:${arch}-${tag}`])
+      await runCommand('docker', ['push', `crossarch/${buildName}:${arch}-${tag}`])
     }
   }
 
   info('Creating and pushing manifests...')
   for (const tag of tags) {
     const childImages = BUILD_FOR_ARCHS.map(arch => `build:${arch}`)
-    runCommand('docker', ['manifest', 'create', `crossarch/${buildName}:${tag}`, ...childImages])
+    await runCommand('docker', [
+      'manifest',
+      'create',
+      `crossarch/${buildName}:${tag}`,
+      ...childImages,
+    ])
     for (const arch of BUILD_FOR_ARCHS) {
       let archDescription = ['--os', 'linux']
       if (arch === 'amd64') {
@@ -168,7 +173,7 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
         archDescription = archDescription.concat(['--arch', 'arm', '--variant', 'v7'])
       }
 
-      runCommand('docker', [
+      await runCommand('docker', [
         'manifest',
         'annotate',
         `crossarch/${buildName}:${tag}`,
@@ -177,7 +182,7 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
       ])
     }
 
-    runCommand('docker', ['manifest', 'push', `crossarch/${buildName}:${tag}`])
+    await runCommand('docker', ['manifest', 'push', `crossarch/${buildName}:${tag}`])
   }
 
   info('Updating latest published version...')
