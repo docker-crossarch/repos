@@ -158,7 +158,7 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
 
   info('Creating and pushing manifests...')
   for (const tag of tags) {
-    const childImages = BUILD_FOR_ARCHS.map(arch => `build:${arch}`)
+    const childImages = BUILD_FOR_ARCHS.map(arch => `crossarch/${buildName}:${arch}-${tag}`)
     await runCommand('docker', [
       'manifest',
       'create',
@@ -177,7 +177,7 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
         'manifest',
         'annotate',
         `crossarch/${buildName}:${tag}`,
-        `build:${arch}`,
+        `crossarch/${buildName}:${arch}-${tag}`,
         ...archDescription,
       ])
     }
