@@ -177,7 +177,7 @@ RUN echo "Building image for \${CROSSARCH_ARCH}"`
       ])
     }
 
-    runCommand('docker', ['manifest', 'push', `crossarch/${buildName}:${tag}`)
+    runCommand('docker', ['manifest', 'push', `crossarch/${buildName}:${tag}`])
   }
 
   info('Updating latest published version...')
