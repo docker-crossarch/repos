@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/docker-crossarch/repos#readme",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "colorette": "^1.0.1",
     "esm": "^3.0.82",
     "rimraf": "^3.0.0",
